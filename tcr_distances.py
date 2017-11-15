@@ -33,9 +33,9 @@ class DistanceParams:
                     assert val in ['True','False']
                     self.trim_cdr3s = ( val == 'True' )
                 else:
-                    print 'unrecognized tag:',tag
+                    print('unrecognized tag:',tag)
                     assert False
-            print 'config_string: {} self: {}'.format( config_string, self )
+            print('config_string: {} self: {}'.format( config_string, self ))
 
     def __str__(self):
         return 'DistanceParams: gap_penalty_v_region= {} gap_penalty_cdr3_region= {} weight_v_region= {} weight_cdr3_region= {} align_cdr3s= {} trim_cdr3s= {}'\
@@ -158,7 +158,7 @@ def weighted_cdr3_distance( seq1, seq2, params ):
         ## CDR3 this would be after the Cys+5 position (ie, gappos = 6; align 6 rsds on N-terminal side of CDR3).
         ## Use an earlier gappos if lenshort is less than 11.
         ##
-        gappos = min( 6, 3 + (lenshort-5)/2 )
+        gappos = min( 6, 3 + (lenshort-5)//2 )
         best_dist,count = sequence_distance_with_gappos( shortseq, longseq, gappos, params )
 
     else:
@@ -334,10 +334,10 @@ if __name__ == '__main__':
     params = DistanceParams()
 
     for aa in amino_acids:
-        print 'AAdist',aa,
+        print('AAdist',aa,)
         for bb in amino_acids:
-            print '{:.3f}'.format( bsd4[(aa,bb)] ),
-        print
+            print('{:.3f}'.format( bsd4[(aa,bb)] ),)
+        print()
 
     rep_dists = compute_all_v_region_distances( 'human', params )
 
@@ -345,10 +345,10 @@ if __name__ == '__main__':
     vb_genes = [ x for x in rep_dists.keys() if x[2] == 'B' ]
     vb_genes.sort()
 
-    print 'num_v_genes',len(vb_genes)
+    print('num_v_genes',len(vb_genes))
 
     for v1 in vb_genes:
-        print 'Vdist',v1,
+        print('Vdist',v1,)
         for v2 in vb_genes:
-            print '{:.3f}'.format(rep_dists[v1][v2]),
-        print
+            print('{:.3f}'.format(rep_dists[v1][v2]),)
+        print()

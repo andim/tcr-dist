@@ -19,7 +19,7 @@ class TCR_Gene:
         self.alseq = l['aligned_protseq']
         self.cdrs = l['cdrs'].split(cdrs_sep) if l['cdrs'] else []
         ## these are still 1-indexed !!!!!!!!!!!!!!
-        self.cdr_columns = [ map( int,x.split('-')) for x in l['cdr_columns'].split(cdrs_sep) ] if self.cdrs else []
+        self.cdr_columns = [ list(map( int,x.split('-'))) for x in l['cdr_columns'].split(cdrs_sep) ] if self.cdrs else []
         frame = l['frame']
         assert frame in ['+1','+2','+3','1','2','3']
         self.nucseq_offset = int( frame[-1] )-1 ## 0, 1 or 2 (0-indexed for python)
@@ -48,29 +48,29 @@ for l in lines:
 
 verbose = ( __name__ == '__main__' )
 
-for organism,genes in all_genes.iteritems():
+for organism,genes in all_genes.items():
 
     for ab in 'AB':
         org_merged_loopseqs = {}
-        for id,g in genes.iteritems():
+        for id,g in genes.items():
             if g.chain == ab and g.region == 'V':
                 loopseqs = g.cdrs[:-1] ## exclude CDR3 Nterm
                 org_merged_loopseqs[id] = ' '.join( loopseqs )
 
         all_loopseq_nbrs = {}
         all_loopseq_nbrs_mm1 = {}
-        for id1,seq1 in org_merged_loopseqs.iteritems():
+        for id1,seq1 in org_merged_loopseqs.items():
             g1 = genes[id1]
             cpos = g1.cdr_columns[-1][0] - 1 #0-indexed
             alseq1 = g1.alseq
             minlen = cpos+1
             assert len(alseq1) >= minlen
             if alseq1[cpos] != 'C' and verbose:
-                print 'funny cpos:',id1,alseq1,g1.cdrs[-1]
+                print('funny cpos:',id1,alseq1,g1.cdrs[-1])
 
             all_loopseq_nbrs[id1] = []
             all_loopseq_nbrs_mm1[id1] = []
-            for id2,seq2 in org_merged_loopseqs.iteritems():
+            for id2,seq2 in org_merged_loopseqs.items():
                 g2 = genes[id2]
                 alseq2 = g2.alseq
                 assert len(alseq2) >= minlen
@@ -125,10 +125,10 @@ for organism,genes in all_genes.iteritems():
                                 gene1 = trim_allele_to_gene( id1 )
                                 gene2 = trim_allele_to_gene( id2 )
                                 if gene1 != gene2 and verbose:
-                                    print 'v_mismatches:',organism,mmstring,blscore,id1,id2,\
-                                        loop_mismatches,loop_mismatches_cdrx,all_mismatches,seq1
-                                    print 'v_mismatches:',organism,mmstring,blscore,id1,id2,\
-                                        loop_mismatches,loop_mismatches_cdrx,all_mismatches,seq2
+                                    print('v_mismatches:',organism,mmstring,blscore,id1,id2,\
+                                        loop_mismatches,loop_mismatches_cdrx,all_mismatches,seq1)
+                                    print('v_mismatches:',organism,mmstring,blscore,id1,id2,\
+                                        loop_mismatches,loop_mismatches_cdrx,all_mismatches,seq2)
 
 
         for id in all_loopseq_nbrs:
@@ -136,7 +136,7 @@ for organism,genes in all_genes.iteritems():
             assert org_merged_loopseqs[id] == org_merged_loopseqs[ rep ]
             genes[id].rep = rep
             if verbose:
-                print 'vrep %s %15s %15s %s'%(organism, id, rep, org_merged_loopseqs[id])
+                print('vrep %s %15s %15s %s'%(organism, id, rep, org_merged_loopseqs[id]))
 
 
         ## merge mm1 nbrs to guarantee transitivity
@@ -149,7 +149,7 @@ for organism,genes in all_genes.iteritems():
                         if id3 not in all_loopseq_nbrs_mm1[id1]:
                             all_loopseq_nbrs_mm1[id1].append( id3 )
                             if verbose:
-                                print 'new_nbr:',id1,'<--->',id2,'<--->',id3
+                                print('new_nbr:',id1,'<--->',id2,'<--->',id3)
                             new_id1_nbrs = True
                             break
                     if new_id1_nbrs:
@@ -157,7 +157,7 @@ for organism,genes in all_genes.iteritems():
                 if new_id1_nbrs:
                     new_nbrs = True
             if verbose:
-                print 'new_nbrs:',ab,organism,new_nbrs
+                print('new_nbrs:',ab,organism,new_nbrs)
             if not new_nbrs:
                 break
 
@@ -165,21 +165,21 @@ for organism,genes in all_genes.iteritems():
             rep = min( all_loopseq_nbrs_mm1[id] )
             genes[id].mm1_rep = rep
             if verbose:
-                print 'mm1vrep %s %15s %15s %s'%(organism, id, rep,org_merged_loopseqs[id])
+                print('mm1vrep %s %15s %15s %s'%(organism, id, rep,org_merged_loopseqs[id]))
 
 
     ## setup Jseq reps
     for ab in 'AB':
         jloopseqs = {}
-        for id,g in genes.iteritems():
+        for id,g in genes.items():
             if g.chain == ab and g.region == 'J':
                 num = len( g.cdrs[0].replace( gap_character, '' ) )
                 jloopseq = g.protseq[:num+3] ## go all the way up to and including the GXG
                 jloopseqs[id] = jloopseq
         all_jloopseq_nbrs = {}
-        for id1,seq1 in jloopseqs.iteritems():
+        for id1,seq1 in jloopseqs.items():
             all_jloopseq_nbrs[id1] = []
-            for id2,seq2 in jloopseqs.iteritems():
+            for id2,seq2 in jloopseqs.items():
                 if seq1 == seq2:
                     all_jloopseq_nbrs[id1].append( id2 )
         for id in all_jloopseq_nbrs:
@@ -188,7 +188,7 @@ for organism,genes in all_genes.iteritems():
             genes[id].mm1_rep = rep # just so we have an mm1_rep field defined...
             assert jloopseqs[id] == jloopseqs[ rep ]
             if verbose:
-                print 'jrep %s %15s %15s %15s'%(organism, id, rep, jloopseqs[id])
+                print('jrep %s %15s %15s %15s'%(organism, id, rep, jloopseqs[id]))
 
 
 
@@ -205,7 +205,7 @@ for organism,genes in all_genes.iteritems():
     for chain in 'AB':
 
         for vj in 'VJ':
-            allele_gs = [ (id,g) for (id,g) in all_genes[organism].iteritems() if g.chain==chain and g.region==vj]
+            allele_gs = [ (id,g) for (id,g) in all_genes[organism].items() if g.chain==chain and g.region==vj]
 
             gene2rep = {}
             gene2alleles = {}
@@ -226,15 +226,16 @@ for organism,genes in all_genes.iteritems():
                 gene2alleles[gene].append( allele )
 
             merge_rep_genes = {}
-            for gene,reps in gene2rep.iteritems():
+            for gene,reps in gene2rep.items():
                 if len(reps)>1:
                     assert vj=='V'
                     if verbose:
-                        print 'multireps:',organism, gene, reps
+                        print('multireps:',organism, gene, reps)
                         for allele in gene2alleles[gene]:
-                            print ' '.join(all_genes[organism][allele].cdrs), allele, \
+                            print( ' '.join(all_genes[organism][allele].cdrs), allele, \
                                 all_genes[organism][allele].rep, \
                                 all_genes[organism][allele].mm1_rep
+                                )
 
                     ## we are going to merge these reps
                     ## which one should we choose?
@@ -255,6 +256,6 @@ for organism,genes in all_genes.iteritems():
                     count_rep = merge_rep_genes[ count_rep ]
                 g.count_rep = count_rep #allele2mm1_rep_gene_for_counting[ organism ][ allele] = count_rep
                 if verbose:
-                    print 'countrep:',organism, allele, count_rep
+                    print('countrep:',organism, allele, count_rep)
 
 

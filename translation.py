@@ -29,7 +29,7 @@ def get_translation( seq, frame ):
     offset = abs( int( frame ))-1
     assert offset in range(3)
     seq = seq[offset:].lower()
-    naa = len(seq)/3
+    naa = len(seq)//3
     protseq = ''
     codons = []
     for i in range(naa):
@@ -42,11 +42,11 @@ def get_translation( seq, frame ):
     return protseq,codons
 
 if __name__ == '__main__':
-    print genetic_code
+    print(genetic_code)
 
     for line in open( 'tmp','r'):
         nucseq = line[:-1]
         protseq1,codons = get_translation( nucseq, '+1')
         protseq2,codons = get_translation( nucseq, '+2')
         protseq3,codons = get_translation( nucseq, '+3')
-        print nucseq,protseq1,protseq2,protseq3
+        print(nucseq,protseq1,protseq2,protseq3)
